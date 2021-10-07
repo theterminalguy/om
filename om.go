@@ -5,11 +5,6 @@ import (
 	"encoding/json"
 )
 
-type KeyValue struct {
-	Key   string
-	Value interface{}
-}
-
 type omap struct {
 	container map[string]interface{}
 	keys      []string
@@ -75,7 +70,10 @@ func (*omap) EQ(m *omap) bool {
 // Yielding each key and value to the callback function.
 //
 // KeyValue pair are yielded in the order in which they where added
-func (*omap) Each(cb func(key string, value interface{})) {
+func (m *omap) Each(cb func(key string, value interface{})) {
+	for _, k := range m.keys {
+		cb(k, m.container[k])
+	}
 }
 
 // Iterates through the map,
@@ -85,9 +83,9 @@ func (*omap) Each(cb func(key string, value interface{})) {
 func (*omap) REach(cb func(key string, value interface{})) {
 }
 
-// Returns the total number of items in the map
-func (*omap) Size() int {
-	return 0
+// Size returns the total number of items in the map
+func (m *omap) Size() int {
+	return len(m.keys)
 }
 
 // OMap returns the original map which is the
