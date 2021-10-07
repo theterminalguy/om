@@ -13,6 +13,7 @@ type omap struct {
 	rvalues   *list.List
 }
 
+// NewMap creates a new map
 func NewMap() *omap {
 	m := make(map[string]interface{})
 	return &omap{
@@ -31,55 +32,54 @@ func (m *omap) Add(k string, v interface{}) {
 	m.container[k] = v
 }
 
-// Removes an item from the map by key
+// Remove removes an item from the map by key
 func (m *omap) Remove(k string) error {
 	return nil
 }
 
-// Returns all keys in the map
+// Keys Returns all keys in the map.
 // Keys are returned in the order in which they are added
-// Keys are returned in reverse
 func (m *omap) Keys() []string {
 	return m.keys
 }
 
-// Returns all keys in the map
-// Keys are returned in reverse
+// RKeys Returns all keys in the map.
+// Keys are returned in reverse order
 func (m *omap) RKeys() *list.List {
 	return m.rkeys
 }
 
-// Returns all keys in the map
+// Values Returns all keys in the map.
 // Values are returned in the order in which they are added
 func (m *omap) Values() []interface{} {
 	return m.values
 }
 
-// Returns all keys in the map
-// Keys are returned in reverse
+// RValues returns all keys in the map.
+// Keys are returned in reverse order
 func (m *omap) RValues() *list.List {
 	return m.rvalues
 }
 
-// Compares two map for equality
+// EQ compares two map for equality
 func (*omap) EQ(m *omap) bool {
 	return false
 }
 
-// Iterates through the map,
+// Each iterates through the map,
 // Yielding each key and value to the callback function.
 //
-// KeyValue pair are yielded in the order in which they where added
+// key/value pair are yielded in the order in which they where added
 func (m *omap) Each(cb func(key string, value interface{})) {
 	for _, k := range m.keys {
 		cb(k, m.container[k])
 	}
 }
 
-// Iterates through the map,
+// REach iterates through the map,
 // Yielding each key and value to the callback function.
 //
-// KeyValue pair are yielded in reverse order
+// key/value pair are yielded in reverse order
 func (*omap) REach(cb func(key string, value interface{})) {
 }
 
