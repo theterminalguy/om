@@ -4,12 +4,23 @@ type KeyValue struct {
 	Key   string
 	Value interface{}
 }
+
 type Map struct {
+	container map[string]interface{}
+	keys []string
+	values []interface{}
 }
 
 // Adds a key value pair to the map
-func (*Map) Add(kv *KeyValue) {
+func (m *Map) Add(k string, v interface{}) {
+	m.keys = append(m.keys, k)
+	m.values = append(m.values, v)
+	m.container[k] = v
+}
 
+// Removes an item from the map by key
+func (m *Map) Remove(k string) error {
+	return nil
 }
 
 // Returns all keys in the map
