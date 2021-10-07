@@ -1,25 +1,24 @@
 package om
 
 import (
-	"container/list"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
 )
 
 type omap struct {
 	container map[string]interface{}
 	keys      []string
+	rkeys     []string
 	values    []interface{}
-	rkeys     *list.List
-	rvalues   *list.List
+	rvalues   []interface{}
 }
 
 // NewMap creates a new map
 func NewMap() *omap {
-	m := make(map[string]interface{})
 	return &omap{
-		rkeys:     list.New(),
-		rvalues:   list.New(),
-		container: m,
+		container: make(map[string]interface{}),
 	}
 }
 
@@ -27,9 +26,27 @@ func NewMap() *omap {
 func (m *omap) Add(k string, v interface{}) {
 	m.keys = append(m.keys, k)
 	m.values = append(m.values, v)
-	m.rkeys.PushFront(k)
-	m.rvalues.PushFront(v)
+	m.rkeys = append([]string{k}, m.rkeys...)
+	m.rvalues = append([]interface{}{v}, m.rvalues...)
 	m.container[k] = v
+}
+
+// Get returns the value assigned to the passed key
+// If the value is not found an error is returned
+func (m *omap) Get(key string) (interface{}, error) {
+	if _, ok := m.container[key]; ok {
+		return ok, nil
+	}
+	return nil, errors.New("key not found")
+}
+
+// Get returns the value assigned to the passed key
+// If the value is not found an error is returned
+func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
+	if v, err := m.Get(key); err == nil {
+		return v
+	}
+	return defaultValue
 }
 
 // Remove removes an item from the map by key
@@ -45,7 +62,7 @@ func (m *omap) Keys() []string {
 
 // RKeys Returns all keys in the map.
 // Keys are returned in reverse order
-func (m *omap) RKeys() *list.List {
+func (m *omap) RKeys() []string {
 	return m.rkeys
 }
 
@@ -57,13 +74,35 @@ func (m *omap) Values() []interface{} {
 
 // RValues returns all keys in the map.
 // Keys are returned in reverse order
-func (m *omap) RValues() *list.List {
+func (m *omap) RValues() []interface{} {
 	return m.rvalues
 }
 
 // EQ compares two map for equality
-func (*omap) EQ(m *omap) bool {
-	return false
+// this check if map has the same key and value
+func (m1 *omap) EQ(m2 *omap) bool {
+	if eq := m1.EQKey(m2); !eq {
+		return !eq
+	}
+	for _, k := range m1.keys {
+		// TODO, can you compare interfaces?
+		v1, _ := m1.Get(k)
+		v2, _ := m2.Get(k)
+		if v1 != v2 {
+			return false
+		}
+	}
+	return true
+}
+
+// EQKey checks if both map has the same key regardless of order
+func (m1 *omap) EQKey(m2 *omap) bool {
+	for _, k := range m1.keys {
+		if _, err := m2.Get(k); err != nil {
+			return false
+		}
+	}
+	return true
 }
 
 // Each iterates through the map,
@@ -80,17 +119,20 @@ func (m *omap) Each(cb func(key string, value interface{})) {
 // Yielding each key and value to the callback function.
 //
 // key/value pair are yielded in reverse order
-func (*omap) REach(cb func(key string, value interface{})) {
+func (m *omap) REach(cb func(key string, value interface{})) {
+	for _, k := range m.rkeys {
+		cb(k, m.container[k])
+	}
 }
 
 // Size returns the total number of items in the map
 func (m *omap) Size() int {
-	return len(m.keys)
+	return len(m.container)
 }
 
-// OMap returns the original map which is the
+// OM returns the original golang map which is the
 // underlying data structure used to store the key value pairs
-func (m *omap) OMap() map[string]interface{} {
+func (m *omap) OM() map[string]interface{} {
 	return m.container
 }
 
@@ -101,4 +143,30 @@ func (m *omap) JSON() string {
 		return ""
 	}
 	return string(b)
+}
+
+// Join glues all items in the map by key value
+// in the order in which they where added
+// glue is the string used to join key=value
+// lpad is a text to pad on the left (key=value
+// rpad is a text to pad on th right key=value)
+func (m *omap) Join(glue, lpad, rpad string) string {
+	var b strings.Builder
+	m.Each(func(key string, value interface{}) {
+		fmt.Fprintf(&b, "%v%v%v%v%v", lpad, key, glue, value, rpad)
+	})
+	return b.String()
+}
+
+// Join glues all items in the map by key value
+// in reverse order
+// glue is the string used to join key=value
+// lpad is a text to pad on the left (key=value
+// rpad is a text to pad on th right key=value)
+func (m *omap) RJoin(glue, lpad, rpad string) string {
+	var b strings.Builder
+	m.REach(func(key string, value interface{}) {
+		fmt.Fprintf(&b, "%v%v%v%v%v", lpad, key, glue, value, rpad)
+	})
+	return b.String()
 }
