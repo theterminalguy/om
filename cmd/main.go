@@ -41,4 +41,6 @@ func main() {
 
 	// Join the map
 	fmt.Println(m.Join("=", "", " "))
+
+	fmt.Println(m.HasKey("age"))
 }

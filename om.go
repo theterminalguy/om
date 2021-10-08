@@ -1,3 +1,6 @@
+// Package om implements an ordered map datastructure.
+// It also provides lots of usesful APIs for manipulating
+// this structure with concepts borrowed from Ruby and Java.
 package om
 
 import (
@@ -47,6 +50,11 @@ func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 		return v
 	}
 	return defaultValue
+}
+
+func (m *omap) HasKey(key string) bool {
+	_, err := m.Get(key)
+	return err == nil
 }
 
 // Remove removes an item from the map by key
