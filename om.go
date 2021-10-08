@@ -19,7 +19,7 @@ type omap struct {
 }
 
 // NewMap creates a new map
-func NewMap() *omap {
+func New() *omap {
 	return &omap{
 		container: make(map[string]interface{}),
 	}
@@ -34,7 +34,7 @@ func (m *omap) Add(k string, v interface{}) {
 	m.container[k] = v
 }
 
-// Get returns the value assigned to the passed key
+// Get returns the value of the passed key
 // If the value is not found an error is returned
 func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
@@ -43,8 +43,8 @@ func (m *omap) Get(key string) (interface{}, error) {
 	return nil, errors.New("key not found!")
 }
 
-// Get returns the value assigned to the passed key
-// If the value is not found an error is returned
+// Fetch returns the value of the passed key
+// If the key is not found the defaultValue is returned
 func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 	if v, err := m.Get(key); err == nil {
 		return v
@@ -57,37 +57,37 @@ func (m *omap) HasKey(key string) bool {
 	return err == nil
 }
 
-// Remove removes an item from the map by key
+// Remove removes an item from the map by it's key
 func (m *omap) Remove(k string) error {
 	return nil
 }
 
-// Keys Returns all keys in the map.
+// Keys Returns all keys in the map
 // Keys are returned in the order in which they are added
 func (m *omap) Keys() []string {
 	return m.keys
 }
 
-// RKeys Returns all keys in the map.
+// RKeys Returns all keys in the map
 // Keys are returned in reverse order
 func (m *omap) RKeys() []string {
 	return m.rkeys
 }
 
-// Values Returns all keys in the map.
+// Values Returns all keys in the map
 // Values are returned in the order in which they are added
 func (m *omap) Values() []interface{} {
 	return m.values
 }
 
-// RValues returns all keys in the map.
+// RValues returns all keys in the map
 // Keys are returned in reverse order
 func (m *omap) RValues() []interface{} {
 	return m.rvalues
 }
 
 // EQ compares two map for equality
-// this check if map has the same key and value
+// A map is equal if they both have the same keys and values
 func (m1 *omap) EQ(m2 *omap) bool {
 	if eq := m1.EQKey(m2); !eq {
 		return !eq
@@ -103,7 +103,7 @@ func (m1 *omap) EQ(m2 *omap) bool {
 	return true
 }
 
-// EQKey checks if both map has the same key regardless of order
+// EQKey checks if both map has the same keys regardless of order
 func (m1 *omap) EQKey(m2 *omap) bool {
 	for _, k := range m1.keys {
 		if _, err := m2.Get(k); err != nil {
@@ -116,7 +116,7 @@ func (m1 *omap) EQKey(m2 *omap) bool {
 // Each iterates through the map,
 // Yielding each key and value to the callback function.
 //
-// key/value pair are yielded in the order in which they where added
+// key/value pairs are yielded in the order in which they where added
 func (m *omap) Each(cb func(key string, value interface{})) {
 	for _, k := range m.keys {
 		cb(k, m.container[k])
@@ -126,7 +126,7 @@ func (m *omap) Each(cb func(key string, value interface{})) {
 // REach iterates through the map,
 // Yielding each key and value to the callback function.
 //
-// key/value pair are yielded in reverse order
+// key/value pairs are yielded in reverse order
 func (m *omap) REach(cb func(key string, value interface{})) {
 	for _, k := range m.rkeys {
 		cb(k, m.container[k])
@@ -139,7 +139,7 @@ func (m *omap) Size() int {
 }
 
 // OM returns the original golang map which is the
-// underlying data structure used to store the key value pairs
+// underlying data structure used to store the key/value pairs
 func (m *omap) OM() map[string]interface{} {
 	return m.container
 }
