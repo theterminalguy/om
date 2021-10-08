@@ -38,9 +38,9 @@ func (m *omap) Add(k string, v interface{}) {
 // If the value is not found an error is returned
 func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
-		return ok, nil
+		return m.container[key], nil
 	}
-	return nil, errors.New("key not found")
+	return nil, errors.New("key not found!")
 }
 
 // Get returns the value assigned to the passed key
