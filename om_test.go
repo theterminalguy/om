@@ -17,7 +17,7 @@ func TestGet_KeyNotExist(t *testing.T) {
 	m := New()
 	_, err := m.Get("nokey")
 	if err == nil {
-		t.Error("key not found!")
+		t.Error(ErrKeyNotFound)
 	}
 }
 

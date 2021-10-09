@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+var ErrKeyNotFound error = errors.New("key not found!")
 type omap struct {
 	container       map[string]interface{}
 	keys, rkeys     []string
@@ -58,7 +59,7 @@ func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
 		return m.container[key], nil
 	}
-	return nil, errors.New("key not found!")
+	return nil, ErrKeyNotFound
 }
 
 // Fetch returns the value of the passed key
@@ -68,6 +69,31 @@ func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 		return v
 	}
 	return defaultValue
+}
+
+// Index return the key/value pair stored at the given index.
+// If the index is out of bound, returns an empty string and nil
+func (m *omap) Index(pos int) (string, interface{}) {
+	if pos > 0 && pos < m.Size() {
+		return m.keys[pos], m.values[pos]
+	}
+	return "", nil
+}
+
+// GetKeyIndex returns the numeric index for the given key.
+// If the key is not found, returns -1
+func (m *omap) GetKeyIndex(key string) int {
+	for i, k := range m.keys {
+		if key == k {
+			return i
+		}
+	}
+	return -1
+}
+
+// ValuesAt Returns a new slice containing values for the given keys
+func (m *omap) ValuesAt() {
+	
 }
 
 // HasKey retruns true if the key is contained in the map

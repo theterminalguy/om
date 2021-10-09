@@ -49,4 +49,7 @@ func main() {
 		return v == 27
 	})
 	fmt.Println("HasAny() => ", d)
+
+	k, v := m.Index(1)
+	fmt.Println("Index 0", k, v)
 }
