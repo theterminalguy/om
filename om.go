@@ -10,13 +10,14 @@ import (
 )
 
 var ErrKeyNotFound error = errors.New("key not found!")
+
 type omap struct {
 	container       map[string]interface{}
 	keys, rkeys     []string
 	values, rvalues []interface{}
 }
 
-// NewMap creates a new map
+// New creates a new ordered map
 func New() *omap {
 	return &omap{
 		container: make(map[string]interface{}),
@@ -37,7 +38,7 @@ func (m *omap) Set(k string, v interface{}) {
 	}
 }
 
-// Put upate a key's value. If the key is not found, returns and error
+// Put upate a key's value. If the key is not found, returns an error
 func (m *omap) Put(key string, value interface{}) error {
 	if _, err := m.Get(key); err != nil {
 		return err
@@ -53,8 +54,7 @@ func (m *omap) Put(key string, value interface{}) error {
 	return nil
 }
 
-// Get returns the value of the passed key.
-// If the value is not found an error is returned
+// Get returns the value of the passed key. If the value is not found an error is returned
 func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
 		return m.container[key], nil
@@ -62,8 +62,7 @@ func (m *omap) Get(key string) (interface{}, error) {
 	return nil, ErrKeyNotFound
 }
 
-// Fetch returns the value of the passed key
-// If the key is not found the defaultValue is returned
+// Fetch returns the value of the passed key. If the key is not found the defaultValue is returned
 func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 	if v, err := m.Get(key); err == nil {
 		return v
@@ -71,8 +70,8 @@ func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 	return defaultValue
 }
 
-// Index return the key/value pair stored at the given index.
-// If the index is out of bound, returns an empty string and nil
+// Index return the key/value pair stored at the given index. If the index is out of bound,
+// returns an empty string and nil
 func (m *omap) Index(pos int) (string, interface{}) {
 	if pos > 0 && pos < m.Size() {
 		return m.keys[pos], m.values[pos]
@@ -80,8 +79,7 @@ func (m *omap) Index(pos int) (string, interface{}) {
 	return "", nil
 }
 
-// GetKeyIndex returns the numeric index for the given key.
-// If the key is not found, returns -1
+// GetKeyIndex returns the numeric index for the given key. If the key is not found, returns -1
 func (m *omap) GetKeyIndex(key string) int {
 	for i, k := range m.keys {
 		if key == k {
@@ -92,8 +90,16 @@ func (m *omap) GetKeyIndex(key string) int {
 }
 
 // ValuesAt Returns a new slice containing values for the given keys
-func (m *omap) ValuesAt() {
-	
+func (m *omap) ValuesAt(keys ...string) []interface{} {
+	var values []interface{}
+	for _, k := range keys {
+		if v, err := m.Get(k); err == nil {
+			values = append(values, v)
+			continue
+		}
+		values = append(values, nil)
+	}
+	return values
 }
 
 // HasKey retruns true if the key is contained in the map
@@ -127,7 +133,7 @@ func (m *omap) DeleteIF() {
 
 }
 
-// Clear, removes all map entries and returns a pointer to self
+// Clear, removes all map entries and returns a pointer to the same map
 func (m *omap) Clear() *omap {
 	m.keys, m.rkeys = []string{}, []string{}
 	m.values, m.rvalues = []interface{}{}, []interface{}{}
@@ -135,38 +141,32 @@ func (m *omap) Clear() *omap {
 	return m
 }
 
-// Keys Returns all keys in the map
-// Keys are returned in the order in which they are added
+// Keys Returns all keys in the map. Keys are returned in the order in which they are added
 func (m *omap) Keys() []string {
 	return m.keys
 }
 
-// RKeys Returns all keys in the map
-// Keys are returned in reverse order
+// RKeys Returns all keys in the map. Keys are returned in reverse order
 func (m *omap) RKeys() []string {
 	return m.rkeys
 }
 
-// Values Returns all keys in the map
-// Values are returned in the order in which they are added
+// Values Returns all keys in the map. Values are returned in the order in which they are added
 func (m *omap) Values() []interface{} {
 	return m.values
 }
 
-// RValues returns all keys in the map
-// Keys are returned in reverse order
+// RValues returns all keys in the map. Keys are returned in reverse order
 func (m *omap) RValues() []interface{} {
 	return m.rvalues
 }
 
-// EQ compares two map for equality
-// A map is equal if they both have the same keys and values
+// EQ compares two map for equality. A map is equal if they both have the same keys and values
 func (m1 *omap) EQ(m2 *omap) bool {
 	if eq := m1.EQKey(m2); !eq {
 		return !eq
 	}
 	for _, k := range m1.keys {
-		// TODO, can you compare interfaces?
 		v1, _ := m1.Get(k)
 		v2, _ := m2.Get(k)
 		if v1 != v2 {
@@ -186,9 +186,7 @@ func (m1 *omap) EQKey(m2 *omap) bool {
 	return true
 }
 
-// Each iterates through the map,
-// Yielding each key and value to the callback function.
-//
+// Each iterates through the map, yielding each key and value to the callback function.
 // key/value pairs are yielded in the order in which they where added
 func (m *omap) Each(cb func(key string, value interface{})) {
 	for _, k := range m.keys {
@@ -196,9 +194,7 @@ func (m *omap) Each(cb func(key string, value interface{})) {
 	}
 }
 
-// REach iterates through the map,
-// Yielding each key and value to the callback function.
-//
+// REach iterates through the map, yielding each key and value to the callback function.
 // key/value pairs are yielded in reverse order
 func (m *omap) REach(cb func(key string, value interface{})) {
 	for _, k := range m.rkeys {
@@ -216,8 +212,8 @@ func (m *omap) Empty() bool {
 	return m.Size() == 0
 }
 
-// OM returns the original golang map which is the
-// underlying data structure used to store the key/value pairs
+// OM returns the original golang map which is the underlying data structure used
+// to store the key/value pairs
 func (m *omap) OM() map[string]interface{} {
 	return m.container
 }
@@ -231,8 +227,8 @@ func (m *omap) JSON() string {
 	return string(b)
 }
 
-// Join glues all items in the map by key value
-// in the order in which they where added
+// Join glues all items in the map by key value in the order in which they where added
+//
 // glue is the string used to join key=value
 // lpad is a text to pad on the left (key=value
 // rpad is a text to pad on th right key=value)
@@ -244,8 +240,8 @@ func (m *omap) Join(glue, lpad, rpad string) string {
 	return b.String()
 }
 
-// Join glues all items in the map by key value
-// in reverse order
+// Join glues all items in the map by key value in reverse order
+//
 // glue is the string used to join key=value
 // lpad is a text to pad on the left (key=value
 // rpad is a text to pad on th right key=value)
