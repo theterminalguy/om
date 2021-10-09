@@ -10,11 +10,9 @@ import (
 )
 
 type omap struct {
-	container map[string]interface{}
-	keys      []string
-	rkeys     []string
-	values    []interface{}
-	rvalues   []interface{}
+	container       map[string]interface{}
+	keys, rkeys     []string
+	values, rvalues []interface{}
 }
 
 // NewMap creates a new map
@@ -25,12 +23,10 @@ func New() *omap {
 }
 
 // Add adds a key value pair to the map
-func (m *omap) Add(k string, v interface{}) {
-	m.keys = append(m.keys, k)
-	m.values = append(m.values, v)
-	m.rkeys = append([]string{k}, m.rkeys...)
-	m.rvalues = append([]interface{}{v}, m.rvalues...)
-	m.container[k] = v
+func (m *omap) Add(key string, value interface{}) {
+	m.keys, m.rkeys = append(m.keys, key), append([]string{key}, m.rkeys...)
+	m.values, m.rvalues = append(m.values, value), append([]interface{}{value}, m.rvalues...)
+	m.container[key] = value
 }
 
 // Set updates a key's value using Put. If the key is not found, it calls Add
@@ -52,9 +48,7 @@ func (m *omap) Put(key string, value interface{}) error {
 		}
 	}
 	rpos := (m.Size() - lpos) - 1
-	m.values[lpos] = value
-	m.rvalues[rpos] = value
-	m.container[key] = value
+	m.values[lpos], m.rvalues[rpos], m.container[key] = value, value, value
 	return nil
 }
 
@@ -109,10 +103,8 @@ func (m *omap) DeleteIF() {
 
 // Clear, removes all map entries and returns a pointer to self
 func (m *omap) Clear() *omap {
-	m.keys = []string{}
-	m.rkeys = []string{}
-	m.values = []interface{}{}
-	m.rvalues = []interface{}{}
+	m.keys, m.rkeys = []string{}, []string{}
+	m.values, m.rvalues = []interface{}{}, []interface{}{}
 	m.container = map[string]interface{}{}
 	return m
 }
