@@ -1,6 +1,5 @@
-// Package om implements an ordered map datastructure.
-// It also provides lots of usesful APIs for manipulating
-// this structure with concepts borrowed from Ruby and Java.
+// Package om implements an ordered map datastructure
+// with an extensilve list of APIS borrowed from other languages
 package om
 
 import (
@@ -34,7 +33,32 @@ func (m *omap) Add(k string, v interface{}) {
 	m.container[k] = v
 }
 
-// Get returns the value of the passed key
+// Set updates a key's value using Put. If the key is not found, it calls Add
+func (m *omap) Set(k string, v interface{}) {
+	if err := m.Put(k, v); err != nil {
+		m.Add(k, v)
+	}
+}
+
+// Put upate a key's value. If the key is not found, returns and error
+func (m *omap) Put(key string, value interface{}) error {
+	if _, err := m.Get(key); err != nil {
+		return err
+	}
+	lpos := 0
+	for i, k := range m.keys {
+		if key == k {
+			lpos = i
+		}
+	}
+	rpos := (m.Size() - lpos) - 1
+	m.values[lpos] = value
+	m.rvalues[rpos] = value
+	m.container[key] = value
+	return nil
+}
+
+// Get returns the value of the passed key.
 // If the value is not found an error is returned
 func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
