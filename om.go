@@ -76,14 +76,45 @@ func (m *omap) Fetch(key string, defaultValue interface{}) interface{} {
 	return defaultValue
 }
 
+// HasKey retruns true if the key is contained in the map
 func (m *omap) HasKey(key string) bool {
 	_, err := m.Get(key)
 	return err == nil
 }
 
-// Remove removes an item from the map by it's key
-func (m *omap) Remove(k string) error {
-	return nil
+// HasAny Returns true if any element satisfies a given criterion; false otherwise.
+func (m *omap) HasAny(cb func(key string, value interface{}) bool) bool {
+	for _, k := range m.keys {
+		if cb(k, m.container[k]) {
+			return true
+		}
+	}
+	return false
+}
+
+// Delete removes the entry for the given key and returns its associated value.
+// If the key is not found, returns nil
+func (m *omap) Delete(key string) (interface{}, error) {
+	v, err := m.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	delete(m.container, key)
+	return v, nil
+}
+
+func (m *omap) DeleteIF() {
+
+}
+
+// Clear, removes all map entries and returns a pointer to self
+func (m *omap) Clear() *omap {
+	m.keys = []string{}
+	m.rkeys = []string{}
+	m.values = []interface{}{}
+	m.rvalues = []interface{}{}
+	m.container = map[string]interface{}{}
+	return m
 }
 
 // Keys Returns all keys in the map
@@ -160,6 +191,11 @@ func (m *omap) REach(cb func(key string, value interface{})) {
 // Size returns the total number of items in the map
 func (m *omap) Size() int {
 	return len(m.container)
+}
+
+// Empty Returns true if there are no map entries, false otherwise:
+func (m *omap) Empty() bool {
+	return m.Size() == 0
 }
 
 // OM returns the original golang map which is the

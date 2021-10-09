@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	m := om.NewMap()
+	m := om.New()
 	m.Add("first_name", "Simon Peter")
 	m.Add("last_name", "Damian")
 	m.Add("age", 27)
@@ -43,4 +43,10 @@ func main() {
 	fmt.Println(m.Join("=", "", " "))
 
 	fmt.Println(m.HasKey("age"))
+
+	// Check if map has any key called age
+	d := m.HasAny(func(_ string, v interface{}) bool {
+		return v == 27
+	})
+	fmt.Println("HasAny() => ", d)
 }
