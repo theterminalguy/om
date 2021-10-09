@@ -11,6 +11,7 @@ func main() {
 	m.Add("first_name", "Simon Peter")
 	m.Add("last_name", "Damian")
 	m.Add("age", 27)
+	m.Add("month", 27)
 	m.Add("sex", "male")
 	m.Add("married", false)
 
@@ -52,4 +53,12 @@ func main() {
 
 	k, v := m.Index(1)
 	fmt.Println("Index 0", k, v)
+
+	fmt.Println(m.JSON())
+
+	m.DeleteIF(func(_ string, value interface{}) bool {
+		return value == 27
+	})
+
+	fmt.Println(m.JSON())
 }

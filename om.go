@@ -118,8 +118,8 @@ func (m *omap) HasAny(cb func(key string, value interface{}) bool) bool {
 	return false
 }
 
-// Delete removes the entry for the given key and returns its associated value.
-// If the key is not found, returns nil
+// Delete removes the entry for the given key and returns its associated value. If the key is not found,
+// returns nil and an error
 func (m *omap) Delete(key string) (interface{}, error) {
 	v, err := m.Get(key)
 	if err != nil {
@@ -129,8 +129,15 @@ func (m *omap) Delete(key string) (interface{}, error) {
 	return v, nil
 }
 
-func (m *omap) DeleteIF() {
-
+// DeleteIF calls the callback with each key/value pair. Deletes each entry for which the callback 
+// returns a truthy value and returns the map
+func (m *omap) DeleteIF(cb func(key string, value interface{}) bool) *omap {
+	for _, k := range m.keys {
+		if cb(k, m.container[k]) {
+			m.Delete(k)
+		}
+	}
+	return m
 }
 
 // Clear, removes all map entries and returns a pointer to the same map
@@ -212,8 +219,7 @@ func (m *omap) Empty() bool {
 	return m.Size() == 0
 }
 
-// OM returns the original golang map which is the underlying data structure used
-// to store the key/value pairs
+// OM returns the original golang map which is the underlying data structure used to store the key/value pairs
 func (m *omap) OM() map[string]interface{} {
 	return m.container
 }
