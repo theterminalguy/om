@@ -210,6 +210,22 @@ func (m *omap) Compact_() *omap {
 	return m
 }
 
+// Except returns a new map excluding entries for the given keys
+func (m *omap) Except(keys ...string) *omap {
+	nm := New()
+	for _, k := range keys {
+		nm.Add(k, m.container[k])
+	}
+	for _, k := range m.Keys() {
+		if _, err := nm.Get(k); err == nil {
+			nm.Delete(k)
+			continue
+		}
+		nm.Add(k, m.container[k])
+	}
+	return nm
+}
+
 // Clear, removes all map entries and returns a pointer to the same map
 func (m *omap) Clear() *omap {
 	m.keys, m.rkeys = []string{}, []string{}
