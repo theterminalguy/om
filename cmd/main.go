@@ -64,4 +64,6 @@ func main() {
 	fmt.Println(m.JSON())
 
 	fmt.Println(m.Except("first_name", "last_name", "married").JSON())
+
+	fmt.Println(m.String())
 }

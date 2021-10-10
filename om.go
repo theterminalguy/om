@@ -24,7 +24,7 @@ func New() *omap {
 	}
 }
 
-// Add adds a key value pair to the map
+// Add adds a key value pair to the map. If the key already exist, it's value is updated
 func (m *omap) Add(key string, value interface{}) {
 	if _, err := m.Get(key); err == nil {
 		m.Put(key, value)
@@ -228,6 +228,18 @@ func (m *omap) Except(keys ...string) *omap {
 	return nm
 }
 
+// Merge returns a new map formed by merging the other map into a copy of self
+func (m1 *omap) Merge(m2 *omap) *omap {
+	nm := New()
+	for _, k := range m1.Keys() {
+		nm.Add(k, m1.container[k])
+	}
+	for _, k := range m2.Keys() {
+		nm.Add(k, m2.container[k])
+	}
+	return nm
+}
+
 // Clear, removes all map entries and returns a pointer to the same map
 func (m *omap) Clear() *omap {
 	m.keys, m.rkeys = []string{}, []string{}
@@ -345,4 +357,13 @@ func (m *omap) RJoin(glue, lpad, rpad string) string {
 		fmt.Fprintf(&b, "%v%v%v%v%v", lpad, key, glue, value, rpad)
 	})
 	return b.String()
+}
+
+// String returns a new String containing the map entries
+func (m *omap) String() string {
+	var b strings.Builder
+	for k, v := range m.container {
+		fmt.Fprintf(&b, "%v=%v ", k, v)
+	}
+	return strings.TrimSpace(b.String())
 }
