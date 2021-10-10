@@ -240,6 +240,16 @@ func (m1 *omap) Merge(m2 *omap) *omap {
 	return nm
 }
 
+// Merge_ modifies the original by merging the new map into a copy of self
+func (m1 *omap) Merge_(m2 *omap) *omap {
+	for _, k := range m2.Keys() {
+		if v, err := m2.Get(k); err != nil {
+			m1.Add(k, v)
+		}
+	}
+	return m1
+}
+
 // Clear, removes all map entries and returns a pointer to the same map
 func (m *omap) Clear() *omap {
 	m.keys, m.rkeys = []string{}, []string{}
