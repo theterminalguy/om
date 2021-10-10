@@ -85,7 +85,7 @@ func (m *omap) Index(pos int) (string, interface{}) {
 
 // GetKeyIndex returns the numeric index for the given key. If the key is not found, returns -1
 func (m *omap) GetKeyIndex(key string) int {
-	for i, k := range m.keys {
+	for i, k := range m.Keys() {
 		if key == k {
 			return i
 		}
@@ -114,7 +114,7 @@ func (m *omap) HasKey(key string) bool {
 
 // HasAny Returns true if any element satisfies a given criterion; false otherwise.
 func (m *omap) HasAny(cb func(key string, value interface{}) bool) bool {
-	for _, k := range m.keys {
+	for _, k := range m.Keys() {
 		if cb(k, m.container[k]) {
 			return true
 		}
@@ -129,6 +129,8 @@ func (m *omap) Delete(key string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	// remove values & rvalues
+	// remove keys & rkeys
 	delete(m.container, key)
 	return v, nil
 }
@@ -136,7 +138,7 @@ func (m *omap) Delete(key string) (interface{}, error) {
 // DeleteIF calls the callback with each key/value pair. Deletes each entry for which the callback
 // returns true
 func (m *omap) DeleteIF(cb func(key string, value interface{}) bool) *omap {
-	for _, k := range m.keys {
+	for _, k := range m.Keys() {
 		if cb(k, m.container[k]) {
 			m.Delete(k)
 		}
@@ -147,7 +149,7 @@ func (m *omap) DeleteIF(cb func(key string, value interface{}) bool) *omap {
 // KeepIF calls the callback with each key/value pair. Keeps each entry for which the callback
 // returns true, otherwise deletes the entry from the map
 func (m *omap) KeepIF(cb func(key string, value interface{}) bool) *omap {
-	for _, k := range m.keys {
+	for _, k := range m.Keys() {
 		if !cb(k, m.container[k]) {
 			m.Delete(k)
 		}
@@ -158,7 +160,7 @@ func (m *omap) KeepIF(cb func(key string, value interface{}) bool) *omap {
 // Filter returns a new map whose entries are those for which the callback returns true
 func (m *omap) Filter(cb func(key string, value interface{}) bool) *omap {
 	nm := New()
-	for _, k := range m.keys {
+	for _, k := range m.Keys() {
 		if cb(k, m.container[k]) {
 			nm.Add(k, m.container[k])
 		}
@@ -168,8 +170,40 @@ func (m *omap) Filter(cb func(key string, value interface{}) bool) *omap {
 
 // Filter_ modifies the original map, keeping entires for which the callback returns true
 func (m *omap) Filter_(cb func(key string, value interface{}) bool) *omap {
-	for _, k := range m.keys {
+	for _, k := range m.Keys() {
 		if !cb(k, m.container[k]) {
+			m.Delete(k)
+		}
+	}
+	return m
+}
+
+// Slice returns a new map containing the entries for the given keys
+func (m *omap) Slice(keys ...string) *omap {
+	nm := New()
+	for _, k := range keys {
+		if v, err := m.Get(k); err == nil {
+			nm.Add(k, v)
+		}
+	}
+	return nm
+}
+
+// Compact returns a new map with all nil-valued entries removed
+func (m *omap) Compact() *omap {
+	nm := New()
+	for _, k := range m.Keys() {
+		if v, _ := m.Get(k); v != nil {
+			nm.Add(k, v)
+		}
+	}
+	return nm
+}
+
+// Compact modifies the original map with all nil-valued entries removed
+func (m *omap) Compact_() *omap {
+	for _, k := range m.Keys() {
+		if v, _ := m.Get(k); v == nil {
 			m.Delete(k)
 		}
 	}
