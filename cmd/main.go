@@ -60,5 +60,8 @@ func main() {
 		return value == 27
 	})
 
+	m.Add("fish", "water")
 	fmt.Println(m.JSON())
+
+	fmt.Println(m.Except("first_name", "last_name", "married").JSON())
 }

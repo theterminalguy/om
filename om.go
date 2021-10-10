@@ -221,7 +221,9 @@ func (m *omap) Except(keys ...string) *omap {
 			nm.Delete(k)
 			continue
 		}
-		nm.Add(k, m.container[k])
+		if v, err := m.Get(k); err == nil {
+			nm.Add(k, v)
+		}
 	}
 	return nm
 }
