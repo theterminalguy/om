@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var ErrKeyNotFound error = errors.New("key not found!")
+var ErrKeyNotFound error = errors.New("key not found")
 
 type omap struct {
 	container       map[string]interface{}
