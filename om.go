@@ -58,7 +58,7 @@ func (m *omap) Put(key string, value interface{}) error {
 	return nil
 }
 
-// Get returns the value of the passed key. If the value is not found an error is returned
+// Get returns the value of the passed key. If the key is not found an error is returned
 func (m *omap) Get(key string) (interface{}, error) {
 	if _, ok := m.container[key]; ok {
 		return m.container[key], nil
