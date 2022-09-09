@@ -189,7 +189,7 @@ func (m *omap) Slice(keys ...string) *omap {
 	return nm
 }
 
-// Compact returns a new map with all nil-valued entries removed
+// Compact returns a new map with all nil entries removed
 func (m *omap) Compact() *omap {
 	nm := New()
 	for _, k := range m.Keys() {
@@ -200,7 +200,7 @@ func (m *omap) Compact() *omap {
 	return nm
 }
 
-// Compact modifies the original map with all nil-valued entries removed
+// Compact modifies the original map with all nil entries removed
 func (m *omap) Compact_() *omap {
 	for _, k := range m.Keys() {
 		if v, _ := m.Get(k); v == nil {

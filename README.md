@@ -124,3 +124,160 @@ v := m.ValuesAt("first_name", "last_name")
 fmt.Println(v) // prints [Simon Peter Damian]
 ```
 
+### `HasKey(keys ...string) bool`
+> Returns true if the key is contained in the map
+
+```go
+m := om.New()
+m.Add("first_name", "Simon Peter")
+
+fmt.Println(m.HasKey("first_name")) // prints true
+fmt.Println(m.HasKey("last_name")) // prints false
+```
+
+### `HasAny(cb func(key string, value interface{}) bool) bool`
+> Returns true if any of the key/value pair satisfies the given callback
+
+```go
+m := om.New()
+m.Add("first_name", "Simon Peter")
+
+m.HasAny(func(key string, value interface{}) bool {
+    return key == "first_name" && value == "Simon Peter"
+}) // prints true
+
+m.HasAny(func(key string, value interface{}) bool {
+    return key == "last_name" && value == "Damian"
+}) // prints false
+```
+
+### `Delete(key string) (interface{}, error)`
+> Removes the entry with the given key from the map. If the key is not found, it returns an error
+
+```go
+m := om.New()
+m.Add("first_name", "Simon Peter")
+
+v, err := m.Delete("first_name")
+if err != nil {
+    panic(err)
+}
+fmt.Println(v) // prints Simon Peter
+```
+
+### `DeleteIF(cb func(key string, value interface{}) bool) *omap`
+> Calls the given callback for each key/value pair in the map. If the callback returns true, the key/value pair is removed from the map
+
+```go
+m := om.New()
+m.Add("first_name", "Simon Peter")
+
+m.DeleteIF(func(key string, value interface{}) bool {
+    return key == "first_name" && value == "Simon Peter"
+})
+
+fmt.Println(m.HasKey("first_name")) // prints false
+```
+
+### `KeepIF(cb func(key string, value interface{}) bool) *omap`
+> Calls the callback with each key/value pair. Keeps each entry for which the callback returns true, otherwise deletes the entry from the map
+
+```go
+m := om.New()
+m.Add("first_name", "Simon Peter")
+m.Add("last_name", "Damian")
+m.Add("age", 27)
+
+m.KeepIF(func(key string, value interface{}) bool {
+    return key == "first_name" && value == "Simon Peter"
+})
+
+fmt.Println(m.HasKey("first_name")) // prints true
+fmt.Println(m.HasKey("last_name")) // prints false
+fmt.Println(m.HasKey("age")) // prints false
+```
+
+### `Filter(cb func(key string, value interface{}) bool) *omap`
+> Returns a new map containing the entries for which the callback returns true
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+n := m.Filter(func(key string, value interface{}) bool {
+    return key == "fish" || value == "apple"
+})
+
+fmt.Println(n.HasKey("fish")) // prints true
+fmt.Println(n.HasKey("fruit")) // prints true
+fmt.Println(n.HasKey("vegetable")) // prints false
+```
+
+### `Filter_(cb func(key string, value interface{}) bool) *omap`
+> Modifies the map to contain only the entries for which the callback returns true
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+m.Filter_(func(key string, value interface{}) bool {
+    return key == "fish" || value == "apple"
+})
+
+fmt.Println(m.HasKey("fish")) // prints true
+fmt.Println(m.HasKey("fruit")) // prints true
+fmt.Println(m.HasKey("vegetable")) // prints false
+```
+
+### `Slice(keys ...string) *omap`
+> Returns a new map containing the entries for the given keys
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+n := m.Slice("fish", "fruit")
+
+fmt.Println(n.HasKey("fish")) // prints true
+fmt.Println(n.HasKey("fruit")) // prints true
+fmt.Println(n.HasKey("vegetable")) // prints false
+```
+
+### `Compact() *omap`
+> Returns a new map with all nil values removed
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", nil)
+m.Add("meat", nil)
+
+n := m.Compact()
+
+fmt.Println(n.HasKey("fish")) // prints true
+fmt.Println(n.HasKey("fruit")) // prints true
+fmt.Println(n.HasKey("vegetable")) // prints false
+fmt.Println(n.HasKey("meat")) // prints false
+```
+
+### `Compact_() *omap`
+> Modifies the original map with all nil values removed
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", nil)
+m.Add("meat", nil)
+
+m.Compact_()
+fmt.Println(m.HasKey("fish")) // prints true
+fmt.Println(m.HasKey("fruit")) // prints true
+fmt.Println(m.HasKey("vegetable")) // prints false
+fmt.Println(m.HasKey("meat")) // prints false
+```
