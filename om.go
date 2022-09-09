@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var ErrKeyNotFound error = errors.New("key not found!")
+var ErrKeyNotFound error = errors.New("key not found")
 
 type omap struct {
 	container       map[string]interface{}
@@ -238,6 +238,16 @@ func (m1 *omap) Merge(m2 *omap) *omap {
 		nm.Add(k, m2.container[k])
 	}
 	return nm
+}
+
+// Merge_ modifies the original by merging the new map into a copy of self
+func (m1 *omap) Merge_(m2 *omap) *omap {
+	for _, k := range m2.Keys() {
+		if v, err := m2.Get(k); err != nil {
+			m1.Add(k, v)
+		}
+	}
+	return m1
 }
 
 // Clear, removes all map entries and returns a pointer to the same map
