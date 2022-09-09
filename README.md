@@ -281,3 +281,257 @@ fmt.Println(m.HasKey("fruit")) // prints true
 fmt.Println(m.HasKey("vegetable")) // prints false
 fmt.Println(m.HasKey("meat")) // prints false
 ```
+
+### `Except(keys ...string) *omap`
+> Returns a new map excluding entries for the given keys
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+n := m.Except("fish", "fruit")
+
+fmt.Println(n.HasKey("fish")) // prints false
+fmt.Println(n.HasKey("fruit")) // prints false
+fmt.Println(n.HasKey("vegetable")) // prints true
+```
+
+### `Merge(m2 *omap) *omap`
+> Returns a new map formed by merging the given map with the original map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+n := m.Merge(om.New().Add("fruit", "banana"))
+
+fmt.Println(n.HasKey("fish")) // prints true
+fmt.Println(n.HasKey("fruit")) // prints true
+fmt.Println(n.Get("fruit")) // prints banana
+
+fmt.Println(m.HasKey("fruit")) // prints true
+fmt.Println(m.Get("fruit")) // prints apple
+```
+
+### `Merge_(m2 *omap) *omap`
+> Modifies the original map by mergin the given map with the original map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+m.Merge_(om.New().Add("fruit", "banana"))
+
+fmt.Println(m.HasKey("fish")) // prints true
+fmt.Println(m.HasKey("fruit")) // prints true
+fmt.Println(m.Get("fruit")) // prints banana
+```
+
+### `Clear() *omap`
+> Removes all entries from the map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+m.Clear()
+
+fmt.Println(m.HasKey("fish")) // prints false
+fmt.Println(m.HasKey("fruit")) // prints false
+```
+
+### `Keys() []string`
+> Returns a slice of all keys in the map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+fmt.Println(m.Keys()) // prints [fish fruit vegetable]
+```
+
+### `RKeys() []string`
+> Returns a slice of all keys in the map in reverse order
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+fmt.Println(m.RKeys()) // prints [vegetable fruit fish]
+```
+
+### `Values() []interface{}`
+> Returns a slice of all values in the map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+fmt.Println(m.Values()) // prints [tuna apple carrot]
+```
+
+### `RValues() []interface{}`
+> Returns a slice of all values in the map in reverse order
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+m.Add("vegetable", "carrot")
+
+fmt.Println(m.RValues()) // prints [carrot apple tuna]
+```
+
+### `EQ(m2 *omap) bool`
+> Compares two maps for equality. A map is equal to another map if they have the same keys and values.
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+n := om.New()
+n.Add("fish", "tuna")
+n.Add("fruit", "apple")
+
+o := om.New()
+o.Add("fish", "tuna")
+o.Add("fruit", "banana")
+
+fmt.Println(m.EQ(n)) // prints true
+fmt.Println(m.EQ(o)) // prints false
+```
+
+### `EQKey(m2 *omap) bool`
+> Checks if two maps have the same keys. The values are not checked.
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+n := om.New()
+n.Add("fish", "salmon")
+n.Add("fruit", "banana")
+```
+
+### `Each(cb func(key string, value interface{}))`
+> Iterates over the map and calls the callback function for each entry
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+m.Each(func(key string, value interface{}) {
+    fmt.Println(key, value)
+})
+
+// prints
+// fish tuna
+// fruit apple
+```
+
+### `REach(cb func(key string, value interface{}))`
+> Iterates over the map in reverse order and calls the callback function for each entry
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+m.REach(func(key string, value interface{}) {
+    fmt.Println(key, value)
+})
+
+// prints
+// fruit apple
+// fish tuna
+```
+
+### `Size() int`
+> Returns the number of entries in the map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.Size()) // prints 2
+```
+
+### `IsEmpty() bool`
+> Checks if the map is empty
+
+```go
+m := om.New()
+
+fmt.Println(m.IsEmpty()) // prints true
+```
+
+### `OM() map[string]interface{}`
+> Returns the underyling go map
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.OM()) // prints map[fish:tuna fruit:apple]
+```
+
+### `JSON() string`
+> Returns the map as a JSON string
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.JSON()) // prints {"fish":"tuna","fruit":"apple"}
+```
+
+### `Join(glue, lpad, rpad string) string`
+> Joins the map into a string. The glue is used to separate the entries. The lpad and rpad are used to pad the key and value.
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.Join(" ", "(", ")")) // prints (fish tuna) (fruit apple)
+```
+
+### `RJoin(glue, lpad, rpad string) string`
+> Joins the map into a string in reverse order. The glue is used to separate the entries. The lpad and rpad are used to pad the key and value.
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.RJoin(" ", "(", ")")) // prints (fruit apple) (fish tuna)
+```
+
+### `String() string`
+> Returns a string containing the map entries in the format `key=value`
+
+```go
+m := om.New()
+m.Add("fish", "tuna")
+m.Add("fruit", "apple")
+
+fmt.Println(m.String()) // prints fish=tuna fruit=apple
+```
+

@@ -324,12 +324,12 @@ func (m *omap) Size() int {
 	return len(m.container)
 }
 
-// Empty Returns true if there are no map entries, false otherwise:
-func (m *omap) Empty() bool {
+// IsEmpty Returns true if there are no map entries, false otherwise:
+func (m *omap) IsEmpty() bool {
 	return m.Size() == 0
 }
 
-// OM returns the original golang map which is the underlying data structure used to store the key/value pairs
+// OM returns the original go map
 func (m *omap) OM() map[string]interface{} {
 	return m.container
 }
